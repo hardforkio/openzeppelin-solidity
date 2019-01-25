@@ -1,6 +1,6 @@
-const { shouldBehaveLikePublicRole } = require('../../access/roles/PublicRole.behavior');
+const { shouldBehaveLikePublicRole } = require('../../behaviors/access/roles/PublicRole.behavior');
 const WhitelistAdminRoleMock = artifacts.require('WhitelistAdminRoleMock');
-const shouldFail = require('../../helpers/shouldFail');
+const { shouldFail } = require('openzeppelin-test-helpers');
 
 contract('WhitelistAdminRole', function ([_, whitelistAdmin, otherWhitelistAdmin, ...otherAccounts]) {
   beforeEach(async function () {
