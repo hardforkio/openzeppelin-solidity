@@ -34,6 +34,7 @@ contract WhitelistAdminRole is Ownable {
     }
 
     function addWhitelistAdmin(address account) public onlyAdmin {
+        require(_whitelistAdmins.potentialBearers.length < 20, "Not more than 20 admins are allowed");
         _addWhitelistAdmin(account);
     }
 
