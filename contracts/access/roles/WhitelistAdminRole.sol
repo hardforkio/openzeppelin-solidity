@@ -1,12 +1,13 @@
 pragma solidity ^0.5.0;
 
 import "../Roles.sol";
+import "../../ownership/Ownable.sol";
 
 /**
  * @title WhitelistAdminRole
  * @dev WhitelistAdmins are responsible for assigning and removing Whitelisted accounts.
  */
-contract WhitelistAdminRole {
+contract WhitelistAdminRole is Ownable {
     using Roles for Roles.Role;
 
     event WhitelistAdminAdded(address indexed account);
@@ -18,8 +19,13 @@ contract WhitelistAdminRole {
         _addWhitelistAdmin(msg.sender);
     }
 
+    modifier onlyAdmin() {
+        require(isWhitelistAdmin(msg.sender) || isOwner(), "Only Whitelist Admin or Owner");
+        _;
+    }
+
     modifier onlyWhitelistAdmin() {
-        require(isWhitelistAdmin(msg.sender));
+        require(isWhitelistAdmin(msg.sender), "Only Whitelist Admin");
         _;
     }
 
@@ -27,12 +33,21 @@ contract WhitelistAdminRole {
         return _whitelistAdmins.has(account);
     }
 
-    function addWhitelistAdmin(address account) public onlyWhitelistAdmin {
+    function addWhitelistAdmin(address account) public onlyAdmin {
         _addWhitelistAdmin(account);
     }
 
     function renounceWhitelistAdmin() public {
         _removeWhitelistAdmin(msg.sender);
+    }
+
+    function transferOwnership(address newOwner) public onlyOwner {
+        _addWhitelistAdmin(newOwner);
+        Ownable.transferOwnership(newOwner);
+    }
+
+    function resetWhitelist() public onlyOwner {
+        _whitelistAdmins.removeAll(owner());
     }
 
     function _addWhitelistAdmin(address account) internal {
