@@ -39,8 +39,10 @@ library Roles {
         require(has(role, account));
         for (uint i = 0; i < role.potentialBearers.length; i++) {
             role.bearer[role.potentialBearers[i]] = false;
+
         }
-        role.bearer[account] = true;
+        role.potentialBearers.length = 0;
+        add(role, account);
     }
 
     /**

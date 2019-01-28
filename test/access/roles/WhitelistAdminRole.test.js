@@ -69,3 +69,15 @@ contract('WhitlistAdminRole', function ([deployer]) {
     await shouldFail.reverting(contract.addWhitelistAdmin(ADDRESSES[20], { from: deployer }));
   });
 });
+
+contract('WhitlistAdminRole', function ([deployer]) {
+  it('should be possible to add more admins after resetting', async () => {
+    const contract = await WhitelistAdminRoleMock.new({ from: deployer });
+
+    add19Admins(contract);
+
+    await contract.resetWhitelist({ from: deployer });
+    await contract.addWhitelistAdmin(ADDRESSES[19], { from: deployer });
+    await contract.addWhitelistAdmin(ADDRESSES[20], { from: deployer });
+  });
+});
