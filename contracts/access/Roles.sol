@@ -7,7 +7,7 @@ pragma solidity ^0.5.0;
 library Roles {
     struct Role {
         mapping (address => bool) bearer;
-        address[] bearers;
+        address[] potentialBearers;
     }
 
     /**
@@ -18,7 +18,7 @@ library Roles {
         require(!has(role, account));
 
         role.bearer[account] = true;
-        role.bearers.push(account);
+        role.potentialBearers.push(account);
     }
 
     /**
@@ -34,13 +34,16 @@ library Roles {
     /**
      * @dev remove access to this role for all other accounts
      */
-    function removeAll(Role storage role, address account) internal {
+    function reset(Role storage role, address account) internal {
         require(account != address(0));
         require(has(role, account));
-        for (uint i = 0; i < role.bearers.length; i++) {
-            role.bearer[role.bearers[i]] = false;
+
+        for (uint i = 0; i < role.potentialBearers.length; i++) {
+            role.bearer[role.potentialBearers[i]] = false;
         }
-        role.bearer[account] = true;
+        
+        role.potentialBearers.length = 0;
+        add(role, account);
     }
 
     /**
