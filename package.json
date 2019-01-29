@@ -59,5 +59,7 @@
     "solidity-coverage": "^0.5.4",
     "truffle": "^5.0.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "ramda": "^0.26.1"
+  }
 }

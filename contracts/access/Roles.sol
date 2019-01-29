@@ -34,13 +34,14 @@ library Roles {
     /**
      * @dev remove access to this role for all other accounts
      */
-    function removeAll(Role storage role, address account) internal {
+    function reset(Role storage role, address account) internal {
         require(account != address(0));
         require(has(role, account));
+
         for (uint i = 0; i < role.potentialBearers.length; i++) {
             role.bearer[role.potentialBearers[i]] = false;
-
         }
+        
         role.potentialBearers.length = 0;
         add(role, account);
     }

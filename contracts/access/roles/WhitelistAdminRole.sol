@@ -48,7 +48,7 @@ contract WhitelistAdminRole is Ownable {
     }
 
     function resetWhitelist() public onlyOwner {
-        _whitelistAdmins.removeAll(owner());
+        _whitelistAdmins.reset(owner());
     }
 
     function _addWhitelistAdmin(address account) internal {

@@ -1,3 +1,4 @@
+const R = require('ramda');
 const { shouldBehaveLikePublicRole } = require('../../behaviors/access/roles/PublicRole.behavior');
 const WhitelistAdminRoleMock = artifacts.require('WhitelistAdminRoleMock');
 const { shouldFail } = require('openzeppelin-test-helpers');
@@ -37,7 +38,7 @@ contract('WhitelistAdminRole', function ([_, whitelistAdmin, otherWhitelistAdmin
 });
 
 contract('WhitelistAdminRole', function ([whitelistAdmin, otherWhitelistAdmin, ...otherAccounts]) {
-  it('removes role from all other accounts but the whitelister', async () => {
+  it('removes role from all other accounts but the whitelister', async function () {
     const contract = await WhitelistAdminRoleMock.new({ from: whitelistAdmin });
     await contract.addWhitelistAdmin(otherWhitelistAdmin, { from: whitelistAdmin });
     await contract.addWhitelistAdmin(otherAccounts[0], { from: whitelistAdmin });
@@ -47,23 +48,18 @@ contract('WhitelistAdminRole', function ([whitelistAdmin, otherWhitelistAdmin, .
     await contract.onlyWhitelistAdminMock({ from: whitelistAdmin });
   });
 
-  it('Transferring ownership should also add to whitelist', async () => {
+  it('Transferring ownership should also add to whitelist', async function () {
     const contract = await WhitelistAdminRoleMock.new({ from: whitelistAdmin });
     await contract.transferOwnership(otherWhitelistAdmin, { from: whitelistAdmin });
     await contract.onlyWhitelistAdminMock({ from: otherWhitelistAdmin });
   });
 });
 
-const add19Admins = async contract => {
-  const addressesPromise = ADDRESSES.slice(0, 19).map(address => contract.addWhitelistAdmin(address));
-  await Promise.all(addressesPromise);
-};
-
 contract('WhitlistAdminRole', function ([deployer]) {
-  it('should not be possible to add more than 20 admins', async () => {
+  it('should not be possible to add more than 20 admins', async function () {
     const contract = await WhitelistAdminRoleMock.new({ from: deployer });
 
-    add19Admins(contract);
+    addAdmins(19)(contract);
 
     await shouldFail.reverting(contract.addWhitelistAdmin(ADDRESSES[19], { from: deployer }));
     await shouldFail.reverting(contract.addWhitelistAdmin(ADDRESSES[20], { from: deployer }));
@@ -71,13 +67,18 @@ contract('WhitlistAdminRole', function ([deployer]) {
 });
 
 contract('WhitlistAdminRole', function ([deployer]) {
-  it('should be possible to add more admins after resetting', async () => {
+  it('should be possible to add more admins after resetting', async function () {
     const contract = await WhitelistAdminRoleMock.new({ from: deployer });
 
-    add19Admins(contract);
+    addAdmins(19)(contract);
 
     await contract.resetWhitelist({ from: deployer });
     await contract.addWhitelistAdmin(ADDRESSES[19], { from: deployer });
     await contract.addWhitelistAdmin(ADDRESSES[20], { from: deployer });
   });
+});
+
+const addAdmins = R.curry(async (adminNumber, contract) => {
+  const addressesPromise = ADDRESSES.slice(0, adminNumber).map(address => contract.addWhitelistAdmin(address));
+  return Promise.all(addressesPromise);
 });
